@@ -22,8 +22,10 @@
   },
   "homepage": "https://github.com/manonja/minimum-bootstrap-starter-kit#readme",
   "devDependencies": {
+    "browser-sync": "^2.26.7",
     "cypress": "^3.8.1",
     "gulp": "^4.0.2",
+    "gulp-watch": "^5.0.1",
     "serve": "^11.2.0",
     "start-server-and-test": "^1.10.6"
   }
