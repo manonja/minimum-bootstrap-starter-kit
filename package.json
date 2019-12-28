@@ -23,6 +23,7 @@
   "homepage": "https://github.com/manonja/minimum-bootstrap-starter-kit#readme",
   "devDependencies": {
     "cypress": "^3.8.1",
+    "gulp": "^4.0.2",
     "serve": "^11.2.0",
     "start-server-and-test": "^1.10.6"
   }
