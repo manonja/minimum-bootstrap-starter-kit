@@ -25,6 +25,7 @@
     "browser-sync": "^2.26.7",
     "cypress": "^3.8.1",
     "gulp": "^4.0.2",
+    "gulp-awspublish": "^4.1.0",
     "gulp-cached": "^1.1.1",
     "gulp-htmlmin": "^5.0.1",
     "gulp-if": "^3.0.0",
