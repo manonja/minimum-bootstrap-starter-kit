@@ -1,6 +1,12 @@
 const gulp        = require('gulp');
 const browsersync = require('browser-sync').create();
 const watch       = require('gulp-watch');
+const minify      = require("gulp-minify");
+const uglify      = require("gulp-uglify");
+const useref      = require("gulp-useref");
+const cached      = require("gulp-cached");
+const gulpif      = require("gulp-if");
+const htmlmin     = require('gulp-htmlmin');
 
 const paths = {
     base:   {
@@ -76,7 +82,19 @@ const paths = {
     callback();
   });
 
-  
+  gulp.task('html', function() {
+    return gulp
+        .src([
+          paths.src.html.files
+        ])
+        .pipe(gulpif('*.html', htmlmin({collapseWhitespace: true})))
+        .pipe(useref())
+        .pipe(cached())
+        .pipe(gulpif('*.js', uglify()))
+        .pipe(gulpif('*.js', minify({noSource: true})))
+        // .pipe(gulpif('*.css', cleanCSS()))
+        .pipe(gulp.dest(paths.dist.base.dir));
+  });
 
   gulp.task('watch', function() {
     // gulp.watch(paths.src.scss.files, gulp.series(‘scss’));
@@ -84,5 +102,8 @@ const paths = {
     gulp.watch([paths.src.html.files], gulp.series('browsersyncReload'));
   });
 
+  gulp.task('build', gulp.series('html'))
+
   gulp.task('default', gulp.series(gulp.parallel('browsersync', 'watch')))
+
 
