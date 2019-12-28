@@ -4,16 +4,26 @@
   "description": "bootstrap-starter-kit",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "serve --listen ${PORT:-8080} src",
+    "test": "npm start & cypress run",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:record": "cypress run --record ",
+    "test:ci": "run-p --race start:ci e2e"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/manonja/minimum-bootstrap-starter-kit.git"
   },
   "author": "Manon Jacquin",
-  "license": "ISC",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/manonja/minimum-bootstrap-starter-kit/issues"
   },
-  "homepage": "https://github.com/manonja/minimum-bootstrap-starter-kit#readme"
+  "homepage": "https://github.com/manonja/minimum-bootstrap-starter-kit#readme",
+  "devDependencies": {
+    "cypress": "^3.8.1",
+    "serve": "^11.2.0",
+    "start-server-and-test": "^1.10.6"
+  }
 }
