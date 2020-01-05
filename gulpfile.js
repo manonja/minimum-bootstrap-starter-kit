@@ -8,6 +8,8 @@ const cached = require("gulp-cached");
 const gulpif = require("gulp-if");
 const htmlmin = require("gulp-htmlmin");
 const awspublish = require("gulp-awspublish");
+const babel = require("gulp-babel");
+const sourcemaps = require("gulp-sourcemaps");
 
 const paths = {
   base: {
@@ -26,7 +28,8 @@ const paths = {
   },
   dist: {
     base: {
-      dir: "./dist"
+      dir: "./dist",
+      files: "./dist/**/*"
     },
     libs: {
       dir: "./dist/assets/libs"
@@ -106,11 +109,35 @@ gulp.task("watch", function() {
   gulp.watch([paths.src.html.files], gulp.series("browsersyncReload"));
 });
 
-gulp.task("build", gulp.series("html"));
+gulp.task("js", function() {
+  return gulp
+    .src(["node_modules/babel-polyfill/dist/polyfill.js", paths.src.js.files])
+    .pipe(sourcemaps.init())
+    .pipe(
+      babel({
+        presets: ["@babel/preset-env"]
+      })
+    )
+    .pipe(concat("all.js"))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest(paths.src.tmp.dir));
+});
 
-gulp.task("default", gulp.series(gulp.parallel("browsersync", "watch")));
+gulp.task("js:build", function() {
+  return gulp
+    .src(paths.src.tmp.dir)
+    .pipe(useref())
+    .pipe(cached())
+    .pipe(gulpif("*.js", uglify()))
+    .pipe(gulpif("*.js", minify({ noSource: true })))
+    .pipe(gulp.dest(paths.dist.base.dir));
+});
 
-gulp.task("publish", function() {
+gulp.task("build", gulp.parallel(gulp.series("js", "js:build"), "html"));
+
+gulp.task("default", gulp.series("js", gulp.parallel("browsersync", "watch")));
+
+gulp.task("publish:AWS", function() {
   // create a new publisher using S3 options
   // http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#constructor-property
   var publisher = awspublish.create(
@@ -132,13 +159,7 @@ gulp.task("publish", function() {
 
   return (
     gulp
-      .src([paths.src.html.files])
-      // TODO remove duplicate code
-      .pipe(gulpif("*.html", htmlmin({ collapseWhitespace: true })))
-      .pipe(useref())
-      .pipe(cached())
-      .pipe(gulpif("*.js", uglify()))
-      .pipe(gulpif("*.js", minify({ noSource: true })))
+      .src([paths.dist.base.files])
       // gzip, Set Content-Encoding headers and add .gz extension
       .pipe(awspublish.gzip({ ext: ".gz" }))
       // publisher will add Content-Length, Content-Type and headers specified above
@@ -150,3 +171,5 @@ gulp.task("publish", function() {
       .pipe(awspublish.reporter())
   );
 });
+
+gulp.task("publish", gulp.series("build", "publish:AWS"));
